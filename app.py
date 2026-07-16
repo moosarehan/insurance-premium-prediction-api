@@ -5,7 +5,6 @@ from typing import Literal, Annotated
 import pickle
 import pandas as pd
 
-# import the ml model
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
@@ -21,9 +20,7 @@ tier_2_cities = [
     "Kolhapur", "Bilaspur", "Jalandhar", "Noida", "Guntur", "Asansol", "Siliguri"
 ]
 
-# pydantic model to validate incoming data
 class UserInput(BaseModel):
-
     age: Annotated[int, Field(..., gt=0, lt=120, description='Age of the user')]
     weight: Annotated[float, Field(..., gt=0, description='Weight of the user')]
     height: Annotated[float, Field(..., gt=0, lt=2.5, description='Height of the user')]
@@ -31,12 +28,12 @@ class UserInput(BaseModel):
     smoker: Annotated[bool, Field(..., description='Is user a smoker')]
     city: Annotated[str, Field(..., description='The city that the user belongs to')]
     occupation: Annotated[Literal['retired', 'freelancer', 'student', 'government_job',
-       'business_owner', 'unemployed', 'private_job'], Field(..., description='Occupation of the user')]
+                                   'business_owner', 'unemployed', 'private_job'], Field(..., description='Occupation of the user')]
     
     @computed_field
     @property
     def bmi(self) -> float:
-        return self.weight/(self.height**2)
+        return self.weight / (self.height ** 2)
     
     @computed_field
     @property
@@ -56,7 +53,8 @@ class UserInput(BaseModel):
         elif self.age < 45:
             return "adult"
         elif self.age < 60:
-            return "middle_aged"
+            # NOTE: If your model was trained on "middle aged" with a space, change this to "middle aged"
+            return "middle_aged" 
         return "senior"
     
     @computed_field
@@ -71,7 +69,6 @@ class UserInput(BaseModel):
 
 @app.post('/predict')
 def predict_premium(data: UserInput):
-
     input_df = pd.DataFrame([{
         'bmi': data.bmi,
         'age_group': data.age_group,
@@ -81,10 +78,10 @@ def predict_premium(data: UserInput):
         'occupation': data.occupation
     }])
 
+    # 1. Get prediction
     prediction = model.predict(input_df)[0]
 
-    return JSONResponse(status_code=200, content={'predicted_category': prediction})
+    # 2. Convert prediction to standard Python type (str) to avoid silent JSON serialization failure
+    serializable_prediction = str(prediction)
 
-
-
-
+    return JSONResponse(status_code=200, content={'predicted_category': serializable_prediction})
