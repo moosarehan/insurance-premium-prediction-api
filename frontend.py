@@ -1,7 +1,11 @@
 import streamlit as st
 import requests
+import os
+from dotenv import load_dotenv
 
-API_URL = "http://127.0.0.1:8000/predict" 
+load_dotenv()
+
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/predict")
 
 st.set_page_config(page_title="Insurance Premium Predictor", page_icon="🏥", layout="centered")
 
@@ -12,14 +16,14 @@ st.write("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    age = st.number_input("Age", min_value=-150, max_value=300, value=35)
-    height = st.number_input("Height (meters)", min_value=0.0, max_value=5.0, value=1.72, step=0.01)
-    smoker = st.selectbox("Is the user a smoker?", options=[False, True])
+    age = st.number_input("Age", min_value=1, max_value=119, value=55)
+    height = st.number_input("Height (meters)", min_value=0.5, max_value=2.5, value=1.62, step=0.01)
+    smoker = st.selectbox("Is the user a smoker?", options=[True, False])
     city = st.text_input("City", value="Mumbai")
 
 with col2:
-    weight = st.number_input("Weight (kg)", min_value=-50.0, max_value=500.0, value=79.0, step=0.1)
-    income_lpa = st.number_input("Annual Income (LPA)", min_value=-10.0, value=10.0, step=0.1)
+    weight = st.number_input("Weight (kg)", min_value=1.0, max_value=300.0, value=92.0, step=0.1)
+    income_lpa = st.number_input("Annual Income (LPA)", min_value=0.1, value=2.5, step=0.1)
     occupation = st.selectbox(
         "Occupation",
         options=['private_job', 'government_job', 'business_owner', 'freelancer', 'retired', 'student', 'unemployed']
