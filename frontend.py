@@ -337,7 +337,7 @@ st.markdown("""
 st.markdown('<div class="card"><div class="card-label">👤 Personal Details</div>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
 with c1:
-    age = st.number_input("Age", min_value=-150, max_value=300, value=35)
+    age_raw = st.text_input("Age", value="35", placeholder="e.g. 35")
 with c2:
     city = st.text_input("City", value="Mumbai")
 with c3:
@@ -352,9 +352,9 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="card"><div class="card-label">💓 Health Metrics</div>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
 with c1:
-    height = st.number_input("Height (m)", min_value=0.0, max_value=5.0, value=1.72, step=0.01, format="%.2f")
+    height_raw = st.text_input("Height (m)", value="1.72", placeholder="e.g. 1.72")
 with c2:
-    weight = st.number_input("Weight (kg)", min_value=-50.0, max_value=500.0, value=79.0, step=0.5, format="%.1f")
+    weight_raw = st.text_input("Weight (kg)", value="79.0", placeholder="e.g. 79.0")
 with c3:
     smoker = st.selectbox("Smoker?", options=[False, True], format_func=lambda x: "Yes 🚬" if x else "No ✅")
 st.markdown('</div>', unsafe_allow_html=True)
@@ -362,7 +362,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # ── FINANCIAL PROFILE ──
 st.markdown('<div class="card"><div class="card-label">💼 Financial Profile</div>', unsafe_allow_html=True)
-income_lpa = st.number_input("Annual Income (LPA)", min_value=-10.0, value=10.0, step=0.1, format="%.1f")
+income_raw = st.text_input("Annual Income (LPA)", value="10.0", placeholder="e.g. 10.0")
 st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -373,26 +373,28 @@ clicked = st.button("⬡  Run Risk Assessment", use_container_width=True)
 
 # ── PREDICTION LOGIC ──
 if clicked:
-    ui_errors = []
-    if age < 0 or age > 120:
-        ui_errors.append(("Age", "Input should be between 0 and 120"))
-    if height >= 2.5:
-        ui_errors.append(("Height", "Input should be strictly less than 2.5 meters"))
-    
-    if ui_errors:
-        st.markdown('<div class="err-box"><div class="err-title">❌ Validation Errors — please fix your inputs</div>', unsafe_allow_html=True)
-        for field, msg in ui_errors:
-            st.markdown(f'<div class="validation-item">👉 <strong>{field}</strong>: {msg}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.stop()
+    # Build the payload using raw string values.
+    # Try to cast to the expected types; if casting fails, send the raw
+    # string so the backend Pydantic model rejects it with a 422.
+    def safe_int(v):
+        try:
+            return int(v)
+        except (ValueError, TypeError):
+            return v          # send raw string → Pydantic will reject
+
+    def safe_float(v):
+        try:
+            return float(v)
+        except (ValueError, TypeError):
+            return v          # send raw string → Pydantic will reject
 
     payload = {
-        "age":        int(age),
-        "weight":     float(weight),
-        "height":     float(height),
-        "income_lpa": float(income_lpa),
+        "age":        safe_int(age_raw),
+        "weight":     safe_float(weight_raw),
+        "height":     safe_float(height_raw),
+        "income_lpa": safe_float(income_raw),
         "smoker":     bool(smoker),
-        "city":       city.strip(),
+        "city":       city.strip() if city else "",
         "occupation": occupation,
     }
 
@@ -435,15 +437,19 @@ if clicked:
                     """, unsafe_allow_html=True)
                     st.json(result)
 
-            # ── VALIDATION ERROR ──
+            # ── VALIDATION ERROR (Pydantic 422) ──
             elif response.status_code == 422:
-                st.markdown('<div class="err-box"><div class="err-title">❌ Validation Errors — please fix your inputs</div>', unsafe_allow_html=True)
+                st.markdown('<div class="err-box"><div class="err-title">❌ Validation Failed — the server rejected your inputs</div>', unsafe_allow_html=True)
                 try:
                     errors = response.json().get("detail", [])
-                    for err in errors:
-                        field = str(err.get("loc", ["?"])[-1]).replace("_", " ").title()
-                        msg   = err.get("msg", "Invalid value")
-                        st.markdown(f'<div class="validation-item">👉 <strong>{field}</strong>: {msg}</div>', unsafe_allow_html=True)
+                    if errors:
+                        for err in errors:
+                            loc   = err.get("loc", [])
+                            field = str(loc[-1]).replace("_", " ").title() if loc else "Unknown"
+                            msg   = err.get("msg", "Invalid value")
+                            st.markdown(f'<div class="validation-item">👉 <strong>{field}</strong>: {msg}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown('<div class="validation-item">The server rejected the request but provided no field-level details.</div>', unsafe_allow_html=True)
                 except Exception:
                     st.json(response.json())
                 st.markdown('</div>', unsafe_allow_html=True)
@@ -484,4 +490,4 @@ if clicked:
 
 
 # ── FOOTER ──
-st.markdown('<div class="app-footer">RiskScan &nbsp;·&nbsp; ML-Powered &nbsp;·&nbsp; FastAPI + Streamlit</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="app-footer">RiskScan &nbsp;·&nbsp; ML-Powered &nbsp;·&nbsp; FastAPI + Streamlit<br><span style="opacity: 0.5; font-size: 0.6rem; font-family: monospace;">API Endpoint: {API_URL}</span></div>', unsafe_allow_html=True)
