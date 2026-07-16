@@ -5,7 +5,7 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
-![Pydantic](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pydantic&logoColor=white)
+![Pydantic](https://img.shields.io/badge/pydantic-%23150458.svg?style=for-the-badge&logo=pydantic&logoColor=white)
 
 A machine learning-powered web application that predicts an individual's insurance premium risk category (Low, Medium, High) based on their personal and health demographics. 
 
