@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field,field_validator
 from typing import Literal, Annotated
 import pickle
 import pandas as pd
 
-with open('model.pkl', 'rb') as f:
+with open('model/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 app = FastAPI()
@@ -66,6 +66,14 @@ class UserInput(BaseModel):
             return 2
         else:
             return 3
+    @field_validator('city')
+    @classmethod
+    def normalize(cls,val:str)->str:
+        return val.strip().title()
+
+@app.get('/')
+def welcome():
+    return{'messsage':'Welcome to Insurance premium prediction API'}
 
 @app.post('/predict')
 def predict_premium(data: UserInput):
