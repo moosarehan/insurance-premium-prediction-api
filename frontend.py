@@ -429,45 +429,39 @@ if clicked:
                             bar_color = "#FBBF24"
                         else:
                             bar_color = "#34D399"
-                        
-                        prob_html += f"""
-                        <div style="margin-bottom: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94A3B8; margin-bottom: 0.2rem;">
-                                <span>{category}</span>
-                                <span style="font-weight: 500; color: #E2E8F0;">{prob_pct:.1f}%</span>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.03); border-radius: 3px; height: 5px; overflow: hidden;">
-                                <div style="background: {bar_color}; width: {prob_pct}%; height: 100%;"></div>
-                            </div>
-                        </div>
-                        """
+                        prob_html += (
+                            f'<div style="margin-bottom: 0.75rem;">'
+                            f'<div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94A3B8; margin-bottom: 0.3rem;">'
+                            f'<span>{category}</span>'
+                            f'<span style="font-weight: 500; color: #E2E8F0;">{prob_pct:.1f}%</span>'
+                            f'</div>'
+                            f'<div style="background: rgba(255,255,255,0.03); border-radius: 3px; height: 5px; overflow: hidden;">'
+                            f'<div style="background: {bar_color}; width: {prob_pct}%; height: 100%;"></div>'
+                            f'</div>'
+                            f'</div>'
+                        )
 
-                    st.markdown(f"""
-                    <div class="result-wrap">
-                        <div class="result-card {css_cls}">
-                            <div class="result-icon">{icon}</div>
-                            <div class="result-eyebrow">Predicted Risk Category</div>
-                            <div class="result-value {css_cls}">{label}</div>
-                            <div class="result-desc" style="margin-bottom: 1.5rem;">{desc}</div>
-                            
-                            <!-- Confidence & Probabilities -->
-                            <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; text-align: left;">
-                                <div style="margin-bottom: 1.25rem;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94A3B8; margin-bottom: 0.3rem;">
-                                        <span>Model Confidence</span>
-                                        <span style="font-weight: 600; color: #F1F5F9;">{confidence_pct:.1f}%</span>
-                                    </div>
-                                    <div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 8px; overflow: hidden;">
-                                        <div style="background: linear-gradient(90deg, #06B6D4, #818CF8); width: {confidence_pct}%; height: 100%;"></div>
-                                    </div>
-                                </div>
-                                
-                                <div style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #64748B; margin-bottom: 0.75rem; font-family: 'JetBrains Mono', monospace;">Probability Distribution</div>
-                                {prob_html}
-                            </div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f"""<div class="result-wrap">
+<div class="result-card {css_cls}">
+<div class="result-icon">{icon}</div>
+<div class="result-eyebrow">Predicted Risk Category</div>
+<div class="result-value {css_cls}">{label}</div>
+<div class="result-desc" style="margin-bottom: 1.5rem;">{desc}</div>
+<div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; text-align: left;">
+<div style="margin-bottom: 1.25rem;">
+<div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94A3B8; margin-bottom: 0.3rem;">
+<span>Model Confidence</span>
+<span style="font-weight: 600; color: #F1F5F9;">{confidence_pct:.1f}%</span>
+</div>
+<div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 8px; overflow: hidden;">
+<div style="background: linear-gradient(90deg, #06B6D4, #818CF8); width: {confidence_pct}%; height: 100%;"></div>
+</div>
+</div>
+<div style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #64748B; margin-bottom: 0.75rem; font-family: \'JetBrains Mono\', monospace;">Probability Distribution</div>
+{prob_html}
+</div>
+</div>
+</div>""", unsafe_allow_html=True)
 
                 else:
                     st.markdown("""
