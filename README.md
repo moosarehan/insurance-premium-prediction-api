@@ -10,10 +10,23 @@
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-2.0+-150458?style=for-the-badge&logo=pandas&logoColor=white)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.0+-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 <br>
 
 A full-stack machine learning application that predicts an individual's **insurance premium risk category** — `Low`, `Medium`, or `High` — based on health, demographic, and financial inputs. The system combines a trained **Random Forest classifier** with a production-grade **REST API** and a sleek, dark-themed **web interface**.
+
+<br>
+
+## 🚀 Live Demo
+
+| Service | URL |
+|---------|-----|
+| 🎨 **Frontend** | [https://insurance-app-nv9j.onrender.com](https://insurance-app-nv9j.onrender.com) |
+| ⚡ **API Docs** | [https://insurance-premium-prediction-api-euqj.onrender.com/docs](https://insurance-premium-prediction-api-euqj.onrender.com/docs) |
+
+> ⚠️ App may take **30-50 seconds** to wake up on first visit (free tier sleep mode)
 
 </div>
 
@@ -29,6 +42,8 @@ A full-stack machine learning application that predicts an individual's **insura
 | 🔒 **Pydantic Validation** | Strict server-side input validation — invalid data is rejected with detailed 422 error responses |
 | 🏗️ **Feature Engineering** | Automatic computation of BMI, age group, lifestyle risk score, and city tier from raw inputs |
 | 🌐 **Environment Configurable** | `.env`-driven API URL binding for seamless local ↔ deployment switching |
+| 🐳 **Dockerized** | Fully containerized with separate Dockerfiles for API and Frontend |
+| ☁️ **Cloud Deployed** | Deployed on Render with automatic deployments from GitHub |
 
 ---
 
@@ -73,6 +88,89 @@ A full-stack machine learning application that predicts an individual's **insura
 
 ---
 
+## 🐳 Docker Setup
+
+### Prerequisites
+- **Docker Desktop** installed
+- **Docker Compose** installed
+
+### Project Structure
+```
+insurance_premium_prediction/
+│
+├── app.py                          # FastAPI backend
+├── frontend.py                     # Streamlit frontend
+├── Dockerfile                      # API Docker image
+├── Dockerfile.frontend             # Frontend Docker image
+├── docker-compose.yml              # Local orchestration
+├── model/                          # ML model files
+├── schema/                         # Pydantic schemas
+├── config/                         # Config files
+├── requirement.txt                 # Python dependencies
+├── .env                            # Environment config (not committed)
+└── .gitignore                      # Git ignore rules
+```
+
+### Run Locally with Docker Compose
+
+**1 · Clone the repository:**
+```bash
+git clone https://github.com/moosarehan/insurance-premium-prediction-api.git
+cd insurance-premium-prediction-api
+```
+
+**2 · Create `.env` file:**
+```env
+API_URL=http://api:8000/predict
+```
+
+**3 · Run with Docker Compose:**
+```bash
+docker-compose up
+```
+
+**4 · Access the app:**
+- Frontend → `http://localhost:8501`
+- API Docs → `http://localhost:8000/docs`
+
+### Docker Images on DockerHub
+| Image | Link |
+|-------|------|
+| API | `musarehan/insurance-premium-prediction-api` |
+| Frontend | `musarehan/insurance-frontend` |
+
+---
+
+## ☁️ Deployment
+
+### Deployed on Render
+
+Both services are deployed on **Render** using Docker:
+
+| Service | Dockerfile | URL |
+|---------|------------|-----|
+| API | `./Dockerfile` | `https://insurance-premium-prediction-api-euqj.onrender.com` |
+| Frontend | `./Dockerfile.frontend` | `https://insurance-app-nv9j.onrender.com` |
+
+### Deploy Your Own
+
+**1 · Fork this repository**
+
+**2 · Deploy API on Render:**
+- New Web Service → Connect GitHub repo
+- Language: `Docker`
+- Dockerfile Path: `./Dockerfile`
+- Instance Type: `Free`
+
+**3 · Deploy Frontend on Render:**
+- New Web Service → Connect GitHub repo
+- Language: `Docker`
+- Dockerfile Path: `./Dockerfile.frontend`
+- Instance Type: `Free`
+- Environment Variable: `API_URL=https://your-api-url.onrender.com/predict`
+
+---
+
 ## 🧠 Feature Engineering Pipeline
 
 The Pydantic model doesn't just validate — it **computes derived features** via `@computed_field` that the ML model was trained on:
@@ -90,10 +188,9 @@ The final feature vector sent to the model: `[bmi, age_group, lifestyle_risk, ci
 
 ## 🔒 Validation & Error Handling
 
-All validation is enforced **server-side** through Pydantic. The frontend sends raw user input directly to the backend — no client-side filtering or clamping. This ensures that the single source of truth for data integrity is the `UserInput` Pydantic model.
+All validation is enforced **server-side** through Pydantic.
 
 **Pydantic Constraints:**
-
 ```python
 age:        int    → gt=0, lt=120         # Must be 1–119
 weight:     float  → gt=0                 # Must be positive
@@ -103,8 +200,6 @@ smoker:     bool                           # true / false
 city:       str                            # Any city name
 occupation: Literal → one of 7 valid jobs  # Enum-like constraint
 ```
-
-**What happens with bad data:**
 
 | Input | Backend Response |
 |---|---|
@@ -116,57 +211,34 @@ occupation: Literal → one of 7 valid jobs  # Enum-like constraint
 
 ---
 
-## 🛠️ Getting Started
-
-### Prerequisites
-
-- **Python 3.10+** installed on your system
-- **pip** package manager
+## 🛠️ Local Development (Without Docker)
 
 ### 1 · Install Dependencies
-
 ```bash
-pip install -r req.txt
+pip install -r requirement.txt
 ```
 
 ### 2 · Configure Environment
-
-Create a `.env` file in the project root (or use the existing one):
-
 ```env
 API_URL=http://127.0.0.1:8000/predict
 ```
 
-### 3 · Start the FastAPI Backend
-
+### 3 · Start FastAPI Backend
 ```bash
 uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-> The API is now live at `http://127.0.0.1:8000` with interactive docs at [`/docs`](http://127.0.0.1:8000/docs)
-
-### 4 · Launch the Streamlit Frontend
-
-Open a **second terminal** (keep the backend running):
-
+### 4 · Launch Streamlit Frontend
 ```bash
 streamlit run frontend.py
 ```
-
-> Your browser will auto-open the RiskScan web app 🚀
 
 ---
 
 ## 🧪 Testing the API
 
-### Via Swagger UI (Recommended)
-
-FastAPI auto-generates interactive documentation:
-
-1. Navigate to **http://127.0.0.1:8000/docs**
-2. Expand the `POST /predict` endpoint
-3. Click **"Try it out"**
-4. Paste this sample payload:
+### Via Swagger UI
+Navigate to `https://insurance-premium-prediction-api-euqj.onrender.com/docs` and test with:
 
 ```json
 {
@@ -178,43 +250,6 @@ FastAPI auto-generates interactive documentation:
   "city": "Mumbai",
   "occupation": "private_job"
 }
-```
-
-5. Click **Execute** — you'll see a `200` response with the predicted risk category
-
-### Test Invalid Data
-
-Try sending bad data to see Pydantic validation in action:
-
-```json
-{
-  "age": -10,
-  "weight": 0,
-  "height": 5.0,
-  "income_lpa": -1,
-  "smoker": false,
-  "city": "",
-  "occupation": "astronaut"
-}
-```
-
-> This returns `422 Unprocessable Entity` with detailed field-level error messages
-
----
-
-## 📁 Project Structure
-
-```
-insurance_premium_prediction/
-│
-├── app.py                                    # FastAPI backend — API endpoint + Pydantic model
-├── frontend.py                               # Streamlit frontend — dark-themed web UI
-├── model.pkl                                 # Serialized Random Forest classifier
-├── insurance_prediction_random_forest.ipynb   # Jupyter notebook — data cleaning & model training
-├── insurance.csv                             # Source dataset used for training
-├── req.txt                                   # Python dependencies
-├── .env                                      # Environment config (API_URL)
-└── .gitignore                                # Git ignore rules
 ```
 
 ---
@@ -230,6 +265,8 @@ insurance_premium_prediction/
 | **Data Processing** | Pandas | DataFrame construction for model input |
 | **Frontend** | Streamlit | Interactive web UI with custom CSS |
 | **Config** | python-dotenv | Environment variable management |
+| **Containerization** | Docker + Docker Compose | Containerized deployment |
+| **Cloud** | Render | Free cloud deployment |
 | **Serialization** | Pickle | Model persistence |
 
 ---
@@ -243,6 +280,6 @@ This project is for educational and demonstration purposes.
 <div align="center">
 <br>
 
-**Built with 🧠 Machine Learning · ⚡ FastAPI · 🎨 Streamlit**
+**Built with 🧠 Machine Learning · ⚡ FastAPI · 🎨 Streamlit · 🐳 Docker · ☁️ Render**
 
 </div>
