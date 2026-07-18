@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirement.txt
 
 # Copy only frontend specific files
 COPY frontend.py .
-COPY .env .
+
 
 # Expose Streamlit port
 EXPOSE 8501
